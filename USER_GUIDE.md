@@ -1,204 +1,236 @@
-# WhoIsTrackingMe — Comprehensive User & Scoring Guide
+# WhoIsTrackingMe — User Guide
 
-This guide provides an end-to-end walkthrough on how to use **WhoIsTrackingMe** to analyze browser tracking artifacts, understand privacy exposure risks, and take concrete defensive measures to protect your digital privacy.
-
----
-
-## 1. How to Use WhoIsTrackingMe Effectively
-
-WhoIsTrackingMe is a local-first digital forensics suite. Unlike ad blockers that silently filter network requests, WhoIsTrackingMe operates as an **audit and observability instrument**: it records, classifies, correlates, and explains tracking infrastructure and persistent browser artifacts without modifying web traffic.
-
-### Quick Start Workflow
-
-1. Open `chrome://extensions/` in Chrome or Chromium (Brave, Edge).
-2. Toggle on **Developer mode** in the upper-right corner.
-3. Click **Load unpacked** and select the compiled extension directory:
-   ```text
-   dist/
-   ```
-4. Pin the **WhoIsTrackingMe** icon to your extension toolbar for quick access.
-5. Click the extension icon and select **Open Forensics Dashboard** (or navigate to `chrome-extension://<EXTENSION_ID>/index.html`).
-
-### Step-by-Step Investigation Walkthrough
-
-1. **Browse Naturally**: Browse 4 to 8 websites normally in separate tabs (e.g., a news site, an e-commerce store, a tech blog, a social platform). Keep WhoIsTrackingMe enabled in the background.
-2. **Real-Time Capture**: While you browse, the background service worker automatically captures:
-   - Accessible cookie metadata (name, domain, expiration date, SameSite, Secure, HttpOnly).
-   - Real-time HTTP response `Set-Cookie` headers.
-   - Outgoing third-party network request metadata (initiator site, target domain, HTTP method, resource type).
-3. **Zero Invasiveness**: No browsing data, passwords, form fields, or search queries are ever intercepted or transmitted off your machine.
+Welcome to **WhoIsTrackingMe**! This guide explains what the extension does in simple, everyday language, walks through every feature, and shows you practical steps you can take to protect your privacy online.
 
 ---
 
-### Step 3: Quick Context via Toolbar Popup
-Click the extension icon in the toolbar while viewing any tab:
-- **Active Origin**: Confirms the first-party site currently being audited.
-- **Site Cookies**: Displays the total count of cookies left by this site.
-- **Third-Party vs. Persistent Ratio**: Highlights how many of the site's cookies are set by cross-origin entities and how many survive browser restarts.
-- **Refresh & Dashboard Links**: Click **Open Full Forensics Dashboard** to transition into deep analysis.
+## Table of Contents
+1. [What is WhoIsTrackingMe? (In Plain English)](#1-what-is-whoistrackingme-in-plain-english)
+2. [How to Install the Extension](#2-how-to-install-the-extension)
+3. [Tour of Every Feature](#3-tour-of-every-feature)
+   - [The Quick Popup](#a-the-quick-popup)
+   - [The Dashboard Overview & Privacy Score](#b-the-dashboard-overview--privacy-score)
+   - [Websites List View](#c-websites-list-view)
+   - [Cookie Forensics & Inspector](#d-cookie-forensics--inspector)
+   - [The Interactive Tracking Graph](#e-the-interactive-tracking-graph)
+   - [Activity Timeline](#f-activity-timeline)
+   - [Known Tracker Catalog](#g-known-tracker-catalog)
+4. [How to Use This Tool Effectively (Everyday Habits)](#4-how-to-use-this-tool-effectively-everyday-habits)
+5. [What Security Measures You Can Take to Stay Safe](#5-what-security-measures-you-can-take-to-stay-safe)
+6. [How the Privacy Exposure Score Works (0 to 10)](#6-how-the-privacy-exposure-score-works-0-to-10)
+7. [Privacy & Security Guarantees](#7-privacy--security-guarantees)
 
 ---
 
-### Step 4: Mastering the Forensics Dashboard
+## 1. What is WhoIsTrackingMe? (In Plain English)
 
-#### A. Forensics Overview (`Dashboard`)
-- **Privacy Exposure Score Card**: Immediate heuristic rating (`0.0 - 10.0`) with an expandable button explaining the exact mathematical point breakdown.
-- **6 Core Metric Cards**:
-  1. *Total Cookies*: Cumulative cookies across your browser profile.
-  2. *First-Party Cookies*: Cookies belonging directly to visited origins.
-  3. *Third-Party Cookies*: Cross-origin cookies.
-  4. *Persistent Identifiers*: Cookies with future expiration dates that survive browser closure.
-  5. *Known Trackers*: Domains matched against our high-confidence intelligence database.
-  6. *Unknown Third Parties*: Unclassified cross-origin infrastructure (e.g., CDNs, widgets).
-- **Consolidated Domain Forensics Table**:
-  - Filter by *Known Trackers*, *Unknown Third Parties*, or *First Party*.
-  - Sort by total artifacts to see which entities accumulate the largest footprint.
-  - Click any row to jump directly into that domain's forensic profile.
+Most people know that websites track them, but usually it happens completely in the dark. 
 
-#### B. Website Profiles (`Websites`)
-- Groups observed tracking by visited property (e.g., `nytimes.com`).
-- Displays:
-  - Total cookies and external domains triggered by that specific website.
-  - Active tracking categories (e.g., Advertising, Analytics, Session Replay).
-  - Complete cookies table with technical security flags (`Secure`, `HttpOnly`, `SameSite`) and masked values (`abc1••••••89`).
-  - Click **Explain** on any artifact to open the scientific reasoning modal.
+- Traditional **ad blockers** silently block things, but they don't explain *who* was watching you or *how* they do it.
+- **WhoIsTrackingMe** works like an **X-ray camera for your browser**. It quietly observes what happens in the background and turns hidden surveillance into clear, readable evidence.
 
-#### C. The Overhauled Tracking Graph & Pathway Explorer (`Tracking Graph`)
-- **Forensic Purpose**: Exposing cross-site surveillance reach—answering *"Which third-party companies track me across multiple different sites, how do they correlate my browsing history, and what persistent tokens were dropped?"*
-- **View Modes**:
-  1. **Visual Flow Map (Canvas)**:
-     - Three vertical columns: **1. Visited Websites** $\rightarrow$ **2. Surveillance Entities** $\rightarrow$ **3. Tracking Endpoints**.
-     - **Persistent Zoom & Pan**: Viewport coordinates and scale are preserved across all interactions, filter selections, and hovers (no unexpected view resets).
-     - **On-Canvas Navigation Controls**: Dedicated buttons for Zoom In (`+`), Zoom Out (`-`), Fit All Nodes to View, and Reset (`1:1`).
-     - **Interactive Node Centering**: Clicking any node opens its evidence drawer and lets you smoothly center the canvas on that node.
-     - **Hover Subgraph Isolation**: Hovering any node highlights its incoming/outgoing conduits while dimming unrelated nodes.
-  2. **Pathway Explorer (Step-by-Step Tree)**:
-     - Structured master-detail view designed for clear traversal without 2D graph clutter.
-     - Select any visited website to see an itemized forensic chain:
-       - Every third party notified (Google, Meta, Criteo, etc.)
-       - Whether the entity acts as a **Cross-Site Hub** (linking this site with other visited properties)
-       - All specific tracking endpoints contacted
-       - Identifiers and cookies deposited (flagging persistent cross-session tokens)
-  3. **Entity Footprint Hub**:
-     - Pick an organization (Google, Meta, Microsoft, Amazon, Hotjar) from the dropdown.
-     - View its cross-site reach hub and auto-generated narrative:
-       *"Google tracking infrastructure was triggered across 4 of your visited websites (80% cross-site penetration)..."*
-  4. **Cluster Physics**:
-     - Force-directed D3 simulation showing attraction and clustering around central surveillance hubs.
-- **Noise Reduction**:
-  - **Cross-Site Hubs Only (2+ sites)**: Checkbox toggle to eliminate single-site noise and reveal exclusively multi-site surveillance bridges.
-
-#### D. Forensic Chronological Timeline (`Timeline`)
-- Unified reverse-chronological stream merging network communications and cookie events.
-- **Priority Filter**: Toggle **Review Priorities Only** to isolate high-concern events (advertising networks, session replay recorders, and long-lived identifiers).
-- Filter by website, category, or search keyword.
-
----
-
-## 2. Why This is Helpful from a Privacy Perspective
-
-### 1. Transparency Over "Black-Box" Blocking
-Standard ad blockers block network requests silently based on filter lists. While effective, they do not explain *who* is tracking you, *how* cross-site correlation occurs, or *which* security posture your cookies maintain. WhoIsTrackingMe provides complete visibility.
-
-### 2. Uncovering Cross-Site Surveillance Hubs
-The primary privacy threat on the modern web is not a single website remembering your login; it is a **single third-party entity embedded across dozens of unrelated websites**. By mapping cross-site penetration, WhoIsTrackingMe reveals which conglomerates hold the technical capability to build a unified profile of your interests.
-
-### 3. Auditing Security Hygiene of Stored Cookies
-- **Missing `HttpOnly`**: Indicates client-side scripts can read the cookie via `document.cookie`, increasing vulnerability to XSS token theft.
-- **Missing `Secure`**: Indicates cookies may be transmitted over unencrypted HTTP connections.
-- **Overextended Lifetimes**: Identifies cookies configured to persist for 2, 5, or 10 years on disk.
-
-### 4. Detecting Behavioral & Session Replay Recorders
-WhoIsTrackingMe flags session replay infrastructure (Hotjar, FullStory, Microsoft Clarity) which can capture mouse movements, scrolling behavior, and form interactions.
-
----
-
-## 3. Actionable Defense: How to Protect Your Privacy & Security
-
-When WhoIsTrackingMe flags elevated exposure, here are concrete steps to harden your browser:
-
-### Action 1: Enforce Browser Third-Party Cookie Blocking
-- In Chrome: Go to `chrome://settings/cookies` and select **Block third-party cookies**.
-- In Firefox: Enable **Enhanced Tracking Protection (Strict)**, which activates *Total Cookie Protection* (partitioning cookie jars per top-level website).
-- In Brave: Shields block third-party storage by default.
-
-### Action 2: Purge Persistent Identifiers Flagged by WhoIsTrackingMe
-- Use the **Cookie Inventory** in WhoIsTrackingMe to identify cookies with expiration dates years into the future.
-- In Chrome: Navigate to `chrome://settings/siteData`, search for the specific domain (e.g. `doubleclick.net`), and delete its stored data.
-
-### Action 3: Deploy Layered Content & Script Blockers
-- **uBlock Origin**: Use uBlock Origin alongside WhoIsTrackingMe. While WhoIsTrackingMe serves as your forensic audit camera, uBlock Origin acts as your enforcement shield.
-- **Privacy Badger**: Automatically learns and restricts domains that appear across multiple visited sites.
-
-### Action 4: Implement DNS-Level Tracker Filtering
-- Configure encrypted DNS (DNS-over-HTTPS) using privacy-filtering resolvers:
-  - **NextDNS**: Configurable cloud DNS with blocklists (OISD, AdGuard).
-  - **Pi-hole / AdGuard Home**: Network-wide hardware DNS filtering that prevents tracking requests from ever resolving.
-
-### Action 5: Contextual Site Isolation (Containers & Profiles)
-- Separate sensitive browsing (banking, personal email) from general browsing (news, social media, shopping) by using **Chrome Profiles** or **Firefox Multi-Account Containers**. This prevents shared parent tracking organizations from linking your sessions.
-
----
-
-## 4. Detailed Scoring Guide: Privacy Exposure Index
-
-The **Privacy Exposure Score** is a deterministic, explainable heuristic index ranging from **0.0** (clean / isolated) to **10.0** (maximum observed tracking surface).
+### What it checks for:
+- **Cookies**: Little files dropped on your computer. Are they harmless login memories, or "super-cookies" set to expire in 10 years?
+- **Third-Party Trackers**: Invisible scripts from companies (like Google, Meta, Criteo, TikTok) that load quietly when you visit an unrelated site.
+- **Cross-Site Stalking**: When a single company spots you visiting news sites, shopping sites, and medical blogs, and connects the dots to build a profile about you.
+- **Session Recorders**: Tools (like Hotjar or Microsoft Clarity) that can record your mouse clicks, scrolling, and typing habits.
 
 > [!NOTE]
-> The score does **not** represent an objective probability of compromise or legal non-compliance. It is an empirical index measuring your active **exposure surface** based strictly on local evidence.
-
-### Formula & Weights Configuration
-All weights are transparently configured in [`src/analysis/risk-config.ts`](src/analysis/risk-config.ts):
-
-$$\text{Raw Score} = \sum (\text{Factor Points})$$
-$$\text{Privacy Exposure Score} = \min(10.0, \max(0.0, \text{Round}(\text{Raw Score}, 1)))$$
-
-### Point Breakdown Table
-
-| Forensic Factor | Weight | Condition / Multiplier | Why It Matters |
-| :--- | :--- | :--- | :--- |
-| **Known Tracking Infrastructure** | `+0.7` | Per verified tracking domain in traffic | Confirmed communication with curated analytics, advertising, or telemetry providers. |
-| **Cross-Site Tracking Reach** | `+0.6` | Per parent organization observed across $\ge 2$ distinct visited websites | Directly measures cross-site correlation capability (e.g., Google or Meta seeing you across multiple sites). |
-| **Commercial Advertising Networks** | `+0.5` | Per advertising exchange / retargeting domain | High likelihood of commercial audience profiling and programmatic real-time bidding (RTB). |
-| **Persistent Third-Party Identifiers** | `+0.4` | Per non-session third-party cookie | Persistent disk state that survives browser restarts in a third-party context. |
-| **Session Replay Recorders** | `+0.9` | Per session replay domain (Hotjar, FullStory, Clarity) | Captures granular behavioral telemetry (DOM inputs, mouse pathing, scroll depth). |
-| **Device Fingerprinting** | `+1.0` | Per fingerprinting provider (Fingerprint.com) | Attempts to identify hardware/browser entropy independent of cookies. |
+> **100% Private & Local**: WhoIsTrackingMe never sends any data off your computer. It has no remote servers, no analytics, and no accounts. All your history stays strictly in your browser's local memory.
 
 ---
 
-### Score Ranges & Qualitative Tiers
+## 2. How to Install the Extension
 
-| Score Range | Tier | Visual Indicator | Forensic Interpretation | Recommended Action |
-| :---: | :--- | :---: | :--- | :--- |
-| **0.0 – 2.9** | **Minimal Exposure** | 🟢 Green | Minimal or strictly first-party infrastructure. Most cookies are session-only. | Maintain standard browsing hygiene. |
-| **3.0 – 6.4** | **Moderate Exposure** | 🟡 Amber | Several third-party analytics tags or advertising cookies detected across 1–2 properties. | Enable third-party cookie blocking in browser settings. |
-| **6.5 – 10.0** | **Elevated Exposure** | 🔴 Crimson | Multiple major surveillance hubs observed across disparate websites with persistent identifiers. | Purge persistent cookies, enable strict site containers, and verify tracker blocking. |
+### For Chrome, Brave, Edge, or Vivaldi:
+1. Build the extension or locate the `dist-chrome/` folder:
+   ```bash
+   npm run build:chrome
+   ```
+2. Open your browser's extension manager:
+   - **Chrome**: `chrome://extensions`
+   - **Brave**: `brave://extensions`
+   - **Edge**: `edge://extensions`
+   - **Vivaldi**: `vivaldi://extensions`
+3. Turn on **Developer mode** (toggle in the top-right corner).
+4. Click **Load unpacked** and select the `dist-chrome/` folder.
+5. Click the puzzle icon in your browser toolbar and **pin** WhoIsTrackingMe.
+
+### For Firefox:
+1. Build the Firefox target:
+   ```bash
+   npm run build:firefox
+   ```
+2. Open `about:debugging#/runtime/this-firefox` in Firefox.
+3. Click **Load Temporary Add-on…** and select `dist-firefox/manifest.json`.
 
 ---
 
-### Step-by-Step Calculation Walkthrough
+## 3. Tour of Every Feature
 
-Imagine you visit `nytimes.com` and `cnn.com`. The extension observes:
-- `nytimes.com` calls `doubleclick.net` (Advertising, Google) and sets 1 persistent cookie `IDE`.
-- `cnn.com` calls `doubleclick.net` (Advertising, Google) and `google-analytics.com` (Analytics, Google).
-- `nytimes.com` calls `hotjar.com` (Session Replay).
+### A. The Quick Popup
+Click the WhoIsTrackingMe icon in your browser toolbar anytime you are on a webpage:
+- **Active Origin**: Tells you the website you are currently looking at.
+- **Quick Counters**:
+  - **Cookies**: Total cookies stored for this site.
+  - **Third-Party**: How many cookies were set by outside companies, not the site itself.
+  - **Persistent**: How many cookies will remain on your computer even after you close your browser.
+- **Open Forensics Dashboard**: Opens the full interactive dashboard in a new tab.
 
-The score is calculated transparently:
-1. **Known Trackers**: 3 unique domains (`doubleclick.net`, `google-analytics.com`, `hotjar.com`) $\times 0.7 = \mathbf{+2.1}$
-2. **Cross-Site Reach**: 1 entity (`Google`) observed on both `nytimes.com` and `cnn.com` $\times 0.6 = \mathbf{+0.6}$
-3. **Advertising Infrastructure**: 1 ad network (`doubleclick.net`) $\times 0.5 = \mathbf{+0.5}$
-4. **Session Replay**: 1 replay service (`hotjar.com`) $\times 0.9 = \mathbf{+0.9}$
-5. **Persistent 3rd-Party Cookie**: 1 cookie (`IDE`) $\times 0.4 = \mathbf{+0.4}$
+---
 
-$$\text{Total Raw Score} = 2.1 + 0.6 + 0.5 + 0.9 + 0.4 = \mathbf{4.5}$$
+### B. The Dashboard Overview & Privacy Score
+When you open the full dashboard, the first screen gives you a bird's-eye view:
+- **Privacy Score Card (0 to 10)**: 
+  - `0.0 – 2.9 (Green)`: Clean and safe. Minimal third parties, mostly temporary session cookies.
+  - `3.0 – 6.4 (Amber)`: Moderate tracking. Common advertising tags and analytics are present.
+  - `6.5 – 10.0 (Red)`: Heavy tracking. Multiple big tech trackers watching you across several sites with long-lasting identifiers.
+- **Score Breakdown**: Click the info badge on the score card to see an exact mathematical explanation of why points were added.
+- **Quick Action Bar**:
+  - **Refresh**: Re-scans your browser cookies immediately.
+  - **Clear All Data**: Wipes all stored history and observations from the extension database with one click.
 
-**Result Displayed in Dashboard**:
-```text
-Privacy Exposure Score: 4.5 / 10 (Moderate Exposure)
-├── +2.1 Known tracking infrastructure (3 domains)
-├── +0.9 Session replay behavioral recorders (1 service)
-├── +0.6 Cross-site tracking reach (1 organization spanning multiple sites)
-├── +0.5 Commercial advertising networks (1 network)
-└── +0.4 Persistent third-party identifiers (1 cookie)
-```
-No hidden variables. Completely explainable.
+---
+
+### C. Websites List View
+Click **Websites** in the left sidebar to see a clean, organized table of every website you've visited:
+- **Domain Name**: The site address (e.g., `nytimes.com`).
+- **Detected Trackers**: Visual badges showing which tracker networks were spotted (e.g., Google, Meta, Amazon).
+- **Third-Party Requests**: The number of background requests made to outside servers.
+- **Cookie Count**: How many cookies this site left behind.
+- **Filter & Sort**:
+  - Search by site name or tracker name.
+  - Sort by: *Most Trackers*, *Most Cookies*, *Third-Party Count*, or *Alphabetical*.
+  - Turn on **Trackers Only** to filter out benign sites.
+- **Inspect**: Click on any site row to open a full drill-down showing every single cookie and network call made by that website.
+
+---
+
+### D. Cookie Forensics & Inspector
+Click **Cookies** in the sidebar to view every cookie stored in your browser:
+- **Masked Values**: For your security, actual session tokens and IDs are masked (e.g., `abc1••••••89`). Raw passwords and session keys are never stored or displayed in plain text.
+- **Lifespan Countdown**: Clearly shows whether a cookie is:
+  - *Session (Transient)*: Deleted automatically when you close your browser.
+  - *Persistent (e.g., `365 days` or `2 years`)*: Stays on your hard drive across browser restarts.
+- **Security Badges**:
+  - `Secure`: Ensures the cookie is only sent over encrypted HTTPS connections.
+  - `HttpOnly`: Prevents malicious JavaScript on a website from reading your cookie.
+  - `SameSite (Strict / Lax / None)`: Controls whether the cookie can be sent across different websites.
+  - `CHIPS (Partitioned)`: Modern privacy protection where cookies are partitioned so they cannot track you across different websites.
+- **Explain Modal**: Click **Explain** next to any cookie to get a plain-English diagnosis of what this cookie does and whether it poses a privacy concern.
+
+---
+
+### E. The Interactive Tracking Graph
+Click **Tracking Graph** in the sidebar to visually see how trackers follow you across the internet:
+- **Flow Mode**: Shows a 3-column river diagram:
+  1. *Left column*: Websites you visited.
+  2. *Middle column*: Tracking companies (Google, Meta, etc.).
+  3. *Right column*: Specific tracking endpoints.
+- **Fullscreen Mode**: Click the **Expand / Fullscreen** icon in the graph toolbar to open an edge-to-edge canvas with smooth zoom and pan controls. Press `ESC` or the minimize button to exit.
+- **Highlight Potential Concerns**: Click the **Highlight Concerns** toggle button:
+  - Benign nodes dim out.
+  - High-risk trackers (fingerprinters, session recorders, multi-site hubs) glow in vibrant red/rose so you can immediately see the biggest culprits.
+- **Shortlist Concerns Drawer**: Click **Shortlist Concerns** to open a slide-out drawer listing your top privacy risks ordered by severity. Click any concern to automatically center and zoom the graph onto that node.
+- **Pathway Explorer Tab**: If 2D graphs feel too busy, switch to the *Pathway Explorer* tab. It gives you a clean, step-by-step tree view where you can click a website and see an itemized checklist of everyone that was contacted.
+- **Cross-Site Hubs Only Filter**: Check this box to instantly hide single-site trackers and only see companies that tracked you across **2 or more different websites**.
+
+---
+
+### F. Activity Timeline
+Click **Timeline** in the sidebar to see a chronological live log of your browsing:
+- Combines network calls and cookie events in reverse chronological order (newest first).
+- **Review Priorities Only**: Turn this switch on to filter out ordinary traffic and only show high-priority events: ad bidding, session replay recordings, and persistent identifiers.
+
+---
+
+### G. Known Tracker Catalog
+Click **Trackers** to explore the built-in intelligence catalog:
+- Lists major tracking companies, their parent organizations, and their categories (Advertising, Analytics, Session Replay, Fingerprinting, Social Tracking).
+- Search any company name (e.g., "ByteDance", "Oracle", "Criteo") to learn what their infrastructure is designed to do.
+
+---
+
+## 4. How to Use This Tool Effectively (Everyday Habits)
+
+Here is a recommended 3-step routine to get the most out of WhoIsTrackingMe:
+
+### 1. The Regular Reality Check (Once a Day or Week)
+1. Open the dashboard and glance at your **Privacy Exposure Score**.
+2. If your score is above **6.5 (Elevated)**, switch to the **Tracking Graph**.
+3. Toggle on **Highlight Concerns** or open the **Shortlist Concerns** drawer.
+4. Look at which companies are connecting the most sites together. Usually, you will find 1 or 2 big advertising networks bridging almost every site you visit.
+
+### 2. Before & After Checking an Ad Blocker
+If you use an ad blocker (like uBlock Origin) or a privacy browser (like Brave):
+1. Browse a few news sites with your protection **turned off** and inspect WhoIsTrackingMe. Notice how many cookies and trackers appear.
+2. Turn your protection **on**, clear your data in WhoIsTrackingMe, and browse the same sites again.
+3. You will immediately see the difference in your Privacy Score and graph—giving you concrete proof of whether your blocker is actually doing its job.
+
+### 3. Auditing Sensitive Websites
+When visiting banking, medical, or government portals:
+1. Check the **Quick Popup** on that tab.
+2. Verify that there are **0 Third-Party** trackers.
+3. If an official or sensitive site is loading advertising trackers or session recorders, that is an immediate red flag that your interaction is being shared with commercial brokers.
+
+---
+
+## 5. What Security Measures You Can Take to Stay Safe
+
+Once WhoIsTrackingMe identifies who is tracking you, here are concrete, powerful actions you can take:
+
+### Measure 1: Turn on Third-Party Cookie Blocking in Your Browser
+This single setting stops over 80% of persistent tracking:
+- **Chrome**: Go to `chrome://settings/cookies` $\rightarrow$ select **Block third-party cookies**.
+- **Firefox**: Go to `about:preferences#privacy` $\rightarrow$ set Enhanced Tracking Protection to **Strict**.
+- **Edge**: Go to `edge://settings/content/cookies` $\rightarrow$ enable **Block third-party cookies**.
+- **Brave**: Brave Blocks third-party cookies by default via Brave Shields.
+
+### Measure 2: Clear Long-Lived Cookies Identified by the Extension
+- When WhoIsTrackingMe flags a cookie expiring in `1 year` or `2 years` from an ad company:
+- Open your browser's site data settings:
+  - Chrome: `chrome://settings/siteData`
+  - Firefox: `about:preferences#privacy` $\rightarrow$ *Cookies and Site Data* $\rightarrow$ *Manage Data*
+- Search for the offending tracking domain (e.g. `doubleclick.net`) and click **Remove**.
+
+### Measure 3: Install uBlock Origin as Your Active Shield
+- Remember: **WhoIsTrackingMe is your audit camera; uBlock Origin is your bodyguard.**
+- Use both together. WhoIsTrackingMe will show you what sneaks through, while uBlock Origin will block the majority of scripts before they execute.
+
+### Measure 4: Use Separate Profiles or Containers for Sensitive Accounts
+- **The Danger**: If you check personal Facebook or Google in one tab, and browse medical symptoms or job boards in another tab, cross-site trackers can connect both sessions.
+- **The Fix**:
+  - In **Firefox**: Install the **Multi-Account Containers** extension. Keep Banking, Shopping, and Personal browsing in strictly isolated containers.
+  - In **Chrome/Brave/Edge**: Create a separate **Browser Profile** (e.g., "Personal" vs. "General Browsing"). Profiles keep cookies completely separated.
+
+### Measure 5: Set Up DNS-Level Tracker Blocking
+- Instead of relying solely on browser extensions, block trackers for your entire device or home network:
+  - **NextDNS** (`nextdns.io`): A free private DNS resolver that lets you turn on blocklists (like OISD or AdGuard). It blocks tracking domains before your browser even connects to them.
+  - **Pi-hole**: A small home network filter that blocks ads and telemetry for every phone, laptop, and smart TV in your house.
+
+---
+
+## 6. How the Privacy Exposure Score Works (0 to 10)
+
+The Privacy Score is completely transparent. There are no mysterious algorithms or hidden factors. Here is the exact point system:
+
+| Factor | Points Added | Why We Flag It |
+|---|:---:|---|
+| **Device Fingerprinting** | **+1.0** per provider | Services that try to identify your specific computer or graphics card even if you delete your cookies. |
+| **Session Replay Recorder** | **+0.9** per recorder | Recorders like Hotjar or FullStory that log your mouse clicks, scrolling, and inputs. |
+| **Known Tracker Domain** | **+0.7** per domain | Verified tracking domains identified in your local network traffic. |
+| **Cross-Site Organization** | **+0.6** per entity | A company that was caught seeing you across **2 or more completely different websites**. |
+| **Advertising Network** | **+0.5** per network | Ad exchanges and retargeting providers building ad profiles. |
+| **Persistent 3rd-Party Cookie** | **+0.4** per cookie | A cross-site cookie that saves to your disk and stays active after closing the browser. |
+
+The final score is simply the sum of these points, capped between **0.0** (best) and **10.0** (maximum exposure).
+
+---
+
+## 7. Privacy & Security Guarantees
+
+- **Zero Outbound Traffic**: The extension contains no network transmission code. It does not phone home, make telemetry calls, or contact external servers.
+- **No Payload Inspection**: The extension never reads form passwords, credit card numbers, search box inputs, or POST request bodies. It only inspects domain hostnames and cookie headers.
+- **Token Masking**: Sensitive cookie tokens are masked before saving to disk (e.g., `abc1••••••89`).
+- **Automatic Storage Management**: To prevent consuming disk space, network observations are capped at 50,000 records, automatically pruned after 30 days, and expired cookies are periodically cleaned up every hour.
+- **One-Click Total Wipe**: You can delete all collected data at any time by clicking **Clear All Data** in the dashboard.
