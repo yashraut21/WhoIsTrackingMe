@@ -13,7 +13,8 @@ import {
   Layers,
   Info,
   ArrowUpDown,
-  Filter
+  Filter,
+  Trash2
 } from 'lucide-react';
 import { browserAPI } from '../browser';
 import { dbStore } from '../database/store';
@@ -70,11 +71,28 @@ function DashboardApp() {
     void loadData();
   }, []);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setLoading(true);
-    browserAPI.runtime.sendMessage({ type: 'REFRESH_COOKIES' }).then(() => {
-      setTimeout(loadData, 500);
-    }).catch(() => setTimeout(loadData, 500));
+    try {
+      await browserAPI.runtime.sendMessage({ type: 'REFRESH_COOKIES' });
+    } catch {
+      // ignore
+    }
+    await loadData();
+  };
+
+  const handleClearData = async () => {
+    if (window.confirm('Clear all forensic observations and cookies? This will reset your score to 0.0.')) {
+      setLoading(true);
+      try {
+        await dbStore.clearAll();
+        await loadData();
+      } catch (err) {
+        console.error('Failed to clear data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   // Domain Summaries and Website Profiles
@@ -346,14 +364,24 @@ function DashboardApp() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               onClick={handleRefresh}
               disabled={loading}
+              title="Rescan cookies and update metrics"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-cyber-900 hover:bg-cyber-850 text-neutral-300 border border-cyber-800 transition-colors disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-neutral-400' : ''}`} />
               Refresh
+            </button>
+            <button
+              onClick={handleClearData}
+              disabled={loading}
+              title="Reset all observations and recalculate score to 0.0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors disabled:opacity-50"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Reset Data
             </button>
           </div>
         </header>

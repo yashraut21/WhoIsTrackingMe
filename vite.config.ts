@@ -1,14 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
-import { copyFileSync, mkdirSync } from 'node:fs';
+import { copyFileSync, mkdirSync, cpSync } from 'node:fs';
 
 /**
  * Build mode controls which browser manifest is bundled into dist/.
  *
- *   npm run build:chrome   →  mode = 'chrome'  (default)
- *   npm run build:firefox  →  mode = 'firefox'
- *   npm run build:all      →  runs both sequentially, outputting to dist-chrome/ and dist-firefox/
+ *   npm run build:chrome   →  mode = 'chrome'  (default, outputs to dist-chrome/ and mirrors to dist/)
+ *   npm run build:firefox  →  mode = 'firefox' (outputs to dist-firefox/)
+ *   npm run build:all      →  runs both sequentially
  *
  * The mode is passed via --mode flag: `vite build --mode firefox`
  */
@@ -18,7 +18,6 @@ export default defineConfig(({ mode }) => {
   const manifestSrc = resolve(__dirname, `manifests/${browserTarget}.json`);
 
   // Per-browser output directories keep dist artifacts separate.
-  // `npm run build` (no mode) uses the legacy single `dist/` path for back-compat.
   const outDir = mode === 'firefox'
     ? 'dist-firefox'
     : mode === 'chrome'
@@ -36,6 +35,13 @@ export default defineConfig(({ mode }) => {
             mkdirSync(outDir, { recursive: true });
             copyFileSync(manifestSrc, resolve(__dirname, `${outDir}/manifest.json`));
             console.log(`\n✓ Copied manifests/${browserTarget}.json → ${outDir}/manifest.json`);
+
+            // If building for Chrome, also mirror to dist/ so any extensions loaded from dist/ update instantly
+            if (browserTarget === 'chrome') {
+              mkdirSync(resolve(__dirname, 'dist'), { recursive: true });
+              cpSync(resolve(__dirname, outDir), resolve(__dirname, 'dist'), { recursive: true });
+              console.log(`✓ Mirrored ${outDir}/ → dist/`);
+            }
           } catch (e) {
             console.error('Failed to copy manifest:', e);
           }
