@@ -212,18 +212,32 @@ This single setting stops over 80% of persistent tracking:
 
 ## 6. How the Privacy Exposure Score Works (0 to 10)
 
-The Privacy Score is completely transparent. There are no mysterious algorithms or hidden factors. Here is the exact point system:
+Earlier versions of privacy meters simply added flat points for every tracker, which meant that after visiting just 4 or 5 normal websites, the score would immediately hit **10.0** and stay stuck there forever.
 
-| Factor | Points Added | Why We Flag It |
-|---|:---:|---|
-| **Device Fingerprinting** | **+1.0** per provider | Services that try to identify your specific computer or graphics card even if you delete your cookies. |
-| **Session Replay Recorder** | **+0.9** per recorder | Recorders like Hotjar or FullStory that log your mouse clicks, scrolling, and inputs. |
-| **Known Tracker Domain** | **+0.7** per domain | Verified tracking domains identified in your local network traffic. |
-| **Cross-Site Organization** | **+0.6** per entity | A company that was caught seeing you across **2 or more completely different websites**. |
-| **Advertising Network** | **+0.5** per network | Ad exchanges and retargeting providers building ad profiles. |
-| **Persistent 3rd-Party Cookie** | **+0.4** per cookie | A cross-site cookie that saves to your disk and stays active after closing the browser. |
+WhoIsTrackingMe uses a **balanced multi-dimensional scoring model with diminishing returns**. The score is divided into four distinct risk categories, each with its own maximum ceiling:
 
-The final score is simply the sum of these points, capped between **0.0** (best) and **10.0** (maximum exposure).
+```text
+Total Score = Tracker Breadth (3.0 max) + Cross-Site Reach (3.0 max) + Invasive Techniques (2.5 max) + Cookie Persistence (1.5 max) = 10.0 max
+```
+
+### Why Diminishing Returns Matter
+In cybersecurity and privacy forensics, the **first 3 trackers** you encounter represent the biggest initial jump in your exposure. Going from 30 trackers to 33 trackers only adds marginal risk. By using smooth logarithmic curves, your score increases realistically without blowing past the scale.
+
+| Risk Category | Max Budget | How Points Accumulate | Why We Flag It |
+|---|:---:|---|---|
+| **1. Tracker Ecosystem Breadth** | **3.0 pts** | • Base tracker domains: up to **2.0 pts** (1 tracker = 0.2, 5 = 0.9, 15 = 1.7, 30+ = 2.0)<br>• Commercial ad exchanges: up to **1.0 pt** (ad retargeting networks) | Measures the volume and commercial intent of trackers in your background traffic. |
+| **2. Cross-Site Surveillance Reach** | **3.0 pts** | • Companies tracking across $\ge 2$ sites: up to **1.8 pts**<br>• Site penetration depth: up to **1.2 pts** (e.g. Google seeing 80% of all visited sites) | Directly measures how many dots an organization can connect across unrelated websites. |
+| **3. Invasive Surveillance Techniques** | **2.5 pts** | • Device Fingerprinters: **1.0 pt** first, +0.3 subsequent (up to **1.3 pts**)<br>• Session Replay Recorders: **0.8 pt** first, +0.2 subsequent (up to **1.2 pts**) | Captures intrusive evasions: recording your mouse movements, clicks, and device hardware entropy. |
+| **4. Cookie Persistence & Hygiene** | **1.5 pts** | • Persistent 3rd-party cookies: up to **1.5 pts** (1 cookie = 0.2, 5 = 0.7, 15 = 1.3, 25+ = 1.5) | Detects cross-site cookies saved to disk that survive browser restarts. |
+
+### What Reaching 10.0 Actually Requires
+Under this model, **10.0 is an extreme worst-case score**. To get near a 10.0, a user's session must exhibit:
+1. High tracker volume (hitting the 3.0 cap), **AND**
+2. Pervasive cross-site reach with Google/Meta monitoring almost every visited site (hitting the 3.0 cap), **AND**
+3. Active device fingerprinting *plus* session replay recorders running simultaneously (hitting the 2.5 cap), **AND**
+4. Dozens of persistent third-party cookies on disk (hitting the 1.5 cap).
+
+Normal, everyday browsing typically sits dynamically between **2.5 and 5.5**, giving you a meaningful, responsive metric that actually changes as your browsing changes.
 
 ---
 
